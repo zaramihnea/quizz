@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .question { margin: 20px; }
+        .options { margin: 20px; }
+        .option { margin-bottom: 5px; }
+        .actions { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1 id="quiz-title">Quiz</h1>
+    <div id="question-container"></div>
+    <div class="actions">
+        <button onclick="nextQuestion()">Next</button>
+        <button onclick="endQuiz()">End Quiz</button>
+    </div>
+    <script>
+        let currentQuestionIndex = 0;
+        let selectedOptions = [];
+
+        async function loadQuiz() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const quizId = urlParams.get('id');
+            const response = await fetch(`/api/quiz/${quizId}/questions`);
+            const questions = await response.json();
+            window.questions = questions;
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const questionContainer = document.getElementById('question-container');
+            const question = window.questions[currentQuestionIndex];
+            questionContainer.innerHTML = `
+                <div class="question">${question.title}</div>
+                <div class="options">
+                    ${question.options.map((option, index) => 
+                        `<div class="option">
+                            <input type="checkbox" id="option-${index}" value="${option}">
+                            <label for="option-${index}">${option}</label>
+                        </div>`
+                    ).join('')}
+                </div>
+                <div class="actions">
+                    <button onclick="checkAnswers()">Check Answers</button>
+                </div>
+            `;
+        }
+
+        function checkAnswers() {
+            const question = window.questions[currentQuestionIndex];
+            const selectedOptions = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(el => el.value);
+            const correctOptions = question.correctOptions;
+            const isCorrect = selectedOptions.every(opt => correctOptions.includes(opt)) && selectedOptions.length === correctOptions.length;
+            alert(isCorrect ? 'Correct!' : `Wrong! Correct answers: ${correctOptions.join(', ')}`);
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < window.questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion();
+            } else {
+                alert('End of quiz!');
+            }
+        }
+
+        function endQuiz() {
+            window.location.href = 'index.html';
+        }
+
+        loadQuiz();
+    </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Application</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .quiz-list { margin: 20px; }
+        .quiz-item { margin-bottom: 10px; }
+        .quiz-actions { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Quiz Application</h1>
+    <div class="quiz-actions">
+        <button onclick="startNewQuiz()">Start New Quiz</button>
+    </div>
+    <div class="quiz-list">
+        <h2>Past Quizzes</h2>
+        <div id="quizzes"></div>
+    </div>
+    <script>
+        async function fetchQuizzes() {
+            const response = await fetch('/api/quizzes');
+            const quizzes = await response.json();
+            const quizzesDiv = document.getElementById('quizzes');
+            quizzesDiv.innerHTML = quizzes.map(quiz => 
+                `<div class="quiz-item"><a href="quiz.html?id=${quiz.id}">${quiz.title}</a></div>`
+            ).join('');
+        }
+
+        function startNewQuiz() {
+            window.location.href = 'quiz.html';
+        }
+
+        fetchQuizzes();
+    </script>
+</body>
+</html>
